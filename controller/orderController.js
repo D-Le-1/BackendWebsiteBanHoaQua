@@ -166,25 +166,27 @@ exports.updateOrderStatus = async (req, res) => {
       }
     }
 
-    const products = await Promise.all(
-      order.products.map(async (item) => {
-        const product = await Product.findById(item.product);
-        return {
-          productName: product.name, // Sử dụng tên sản phẩm từ thông tin sản phẩm
-          productImage:
-            product.images && product.images.length > 0
-              ? product.images[0]
-              : "",
-          quantity: item.quantity,
-          salePrice: product.salePrice || 0,
-        };
-      })
-    );
+    if (status === "confirmed" && order.status === "pending") {
+      const products = await Promise.all(
+        order.products.map(async (item) => {
+          const product = await Product.findById(item.product);
+          return {
+            productName: product.name,
+            productImage:
+              product.images && product.images.length > 0
+                ? product.images[0]
+                : "",
+            quantity: item.quantity,
+            salePrice: product.salePrice || 0,
+          };
+        })
+      );
 
-    await sendOrderConfirmationMail(order.email, {
-      products,
-      totalPrice: order.totalPrice,
-    });
+      await sendOrderConfirmationMail(order.email, {
+        products,
+        totalPrice: order.totalPrice,
+      });
+    }
 
     // Cập nhật trạng thái đơn hàng
     order.status = status;
