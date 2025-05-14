@@ -15,5 +15,7 @@ router.patch(
   authController.updateUserInfo
 );
 router.patch("/role/:id", authMiddleware, authController.changeRole);
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password", authController.resetPassword);
 
 module.exports = router;

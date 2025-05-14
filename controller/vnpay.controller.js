@@ -69,6 +69,15 @@ const handleVNPayReturn = async (req, res) => {
 
     const verify = await vnpay.verifyReturnUrl(query);
 
+    if (
+      verify.vnp_ResponseCode !== "00" ||
+      verify.vnp_TransactionStatus !== "00"
+    ) {
+      return res.redirect(
+        "http://localhost:5173/order-failed?message=Giao+dịch+không+thành+công"
+      );
+    }
+
     if (!verify.isSuccess) {
       // Nếu giao dịch KHÔNG thành công, đánh dấu đơn pending là cancelled
       await PendingOrder.findOneAndUpdate(
